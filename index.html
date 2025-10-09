@@ -12,14 +12,74 @@
   <header class="header">
     <nav class="navbar">
       <div class="logo">
-  <span class="logo-text">Red de Hombres IWP</span>
+        <span class="logo-text">Red de Hombres IWP</span>
       </div>
-      <ul class="menu">
-        <li><a href="#inicio">Inicio</a></li>
-        <li><a href="#ministerios">Ministerios</a></li>
-        <li><a href="#voluntariado">Voluntariado</a></li>
-        <li><a href="#cursos">Cursos</a></li>
+      <button class="menu-toggle" aria-label="Abrir menú" style="display:none;background:none;border:none;font-size:2rem;color:#0077b6;cursor:pointer;margin-left:auto;margin-right:1rem;">
+        <i class="fas fa-bars"></i>
+      </button>
+      <ul class="menu" style="list-style:none;display:flex;gap:2.5rem;margin:0;padding:0 2rem;align-items:center;">
+        <li class="menu-item" style="position:relative;">
+          <a href="#inicio" style="color:#0077b6;font-weight:700;text-decoration:none;padding:1rem 0.5rem;display:block;font-size:1.1rem;border-radius:8px;transition:color 0.2s,background 0.2s;">Inicio</a>
+          <ul class="submenu" style="display:none;position:absolute;left:0;top:100%;background:#fff;min-width:180px;box-shadow:0 4px 16px rgba(0,119,182,0.10);border-radius:0 0 12px 12px;z-index:10;padding:0.5rem 0;">
+            <li><a href="#mision" style="color:#0077b6;text-decoration:none;display:block;padding:0.7rem 1.2rem;font-size:1rem;border-radius:6px;transition:background 0.2s,color 0.2s;">Misión</a></li>
+            <li><a href="#vision" style="color:#0077b6;text-decoration:none;display:block;padding:0.7rem 1.2rem;font-size:1rem;border-radius:6px;transition:background 0.2s,color 0.2s;">Visión</a></li>
+            <li><a href="#quienes" style="color:#0077b6;text-decoration:none;display:block;padding:0.7rem 1.2rem;font-size:1rem;border-radius:6px;transition:background 0.2s,color 0.2s;">Quiénes Somos</a></li>
+          </ul>
+        </li>
+        <li class="menu-item" style="position:relative;">
+          <a href="#ministerios" style="color:#0077b6;font-weight:700;text-decoration:none;padding:1rem 0.5rem;display:block;font-size:1.1rem;border-radius:8px;transition:color 0.2s,background 0.2s;">Ministerios</a>
+          <ul class="submenu" style="display:none;position:absolute;left:0;top:100%;background:#fff;min-width:180px;box-shadow:0 4px 16px rgba(0,119,182,0.10);border-radius:0 0 12px 12px;z-index:10;padding:0.5rem 0;">
+            <li><a href="#ninos" style="color:#0077b6;text-decoration:none;display:block;padding:0.7rem 1.2rem;font-size:1rem;border-radius:6px;transition:background 0.2s,color 0.2s;">Niños</a></li>
+            <li><a href="#jovenes" style="color:#0077b6;text-decoration:none;display:block;padding:0.7rem 1.2rem;font-size:1rem;border-radius:6px;transition:background 0.2s,color 0.2s;">Jóvenes</a></li>
+            <li><a href="#encuentros" style="color:#0077b6;text-decoration:none;display:block;padding:0.7rem 1.2rem;font-size:1rem;border-radius:6px;transition:background 0.2s,color 0.2s;">Encuentros</a></li>
+            <li><a href="#redhombres" style="color:#0077b6;text-decoration:none;display:block;padding:0.7rem 1.2rem;font-size:1rem;border-radius:6px;transition:background 0.2s,color 0.2s;">Red de Hombres</a></li>
+          </ul>
+        </li>
+        <li class="menu-item" style="position:relative;">
+          <a href="#voluntariado" style="color:#0077b6;font-weight:700;text-decoration:none;padding:1rem 0.5rem;display:block;font-size:1.1rem;border-radius:8px;transition:color 0.2s,background 0.2s;">Voluntariado</a>
+          <ul class="submenu" style="display:none;position:absolute;left:0;top:100%;background:#fff;min-width:180px;box-shadow:0 4px 16px rgba(0,119,182,0.10);border-radius:0 0 12px 12px;z-index:10;padding:0.5rem 0;">
+            <li><a href="#servicio" style="color:#0077b6;text-decoration:none;display:block;padding:0.7rem 1.2rem;font-size:1rem;border-radius:6px;transition:background 0.2s,color 0.2s;">Servicio</a></li>
+            <li><a href="#equipos" style="color:#0077b6;text-decoration:none;display:block;padding:0.7rem 1.2rem;font-size:1rem;border-radius:6px;transition:background 0.2s,color 0.2s;">Equipos</a></li>
+          </ul>
+        </li>
+        <li class="menu-item" style="position:relative;">
+          <a href="#cursos" style="color:#0077b6;font-weight:700;text-decoration:none;padding:1rem 0.5rem;display:block;font-size:1.1rem;border-radius:8px;transition:color 0.2s,background 0.2s;">Cursos</a>
+          <ul class="submenu" style="display:none;position:absolute;left:0;top:100%;background:#fff;min-width:180px;box-shadow:0 4px 16px rgba(0,119,182,0.10);border-radius:0 0 12px 12px;z-index:10;padding:0.5rem 0;">
+            <li><a href="#liderazgo" style="color:#0077b6;text-decoration:none;display:block;padding:0.7rem 1.2rem;font-size:1rem;border-radius:6px;transition:background 0.2s,color 0.2s;">Liderazgo</a></li>
+            <li><a href="#familia" style="color:#0077b6;text-decoration:none;display:block;padding:0.7rem 1.2rem;font-size:1rem;border-radius:6px;transition:background 0.2s,color 0.2s;">Familia</a></li>
+            <li><a href="#finanzas" style="color:#0077b6;text-decoration:none;display:block;padding:0.7rem 1.2rem;font-size:1rem;border-radius:6px;transition:background 0.2s,color 0.2s;">Finanzas</a></li>
+            <li><a href="#salud" style="color:#0077b6;text-decoration:none;display:block;padding:0.7rem 1.2rem;font-size:1rem;border-radius:6px;transition:background 0.2s,color 0.2s;">Salud Integral</a></li>
+          </ul>
+        </li>
       </ul>
+      <script>
+        // Mostrar/ocultar menú en móvil
+        const menuToggle = document.querySelector('.menu-toggle');
+        const menu = document.querySelector('.menu');
+        menuToggle.style.display = window.innerWidth <= 900 ? 'block' : 'none';
+        window.addEventListener('resize', () => {
+          menuToggle.style.display = window.innerWidth <= 900 ? 'block' : 'none';
+          if(window.innerWidth > 900) menu.classList.remove('menu-open');
+        });
+        menuToggle.addEventListener('click', () => {
+          menu.classList.toggle('menu-open');
+        });
+        // Submenús: hover en desktop, click en móvil
+        document.querySelectorAll('.menu-item').forEach(function(item) {
+          const link = item.querySelector('a');
+          const submenu = item.querySelector('.submenu');
+          if(!submenu) return;
+          if(window.innerWidth > 900) {
+            item.addEventListener('mouseenter', () => submenu.style.display = 'block');
+            item.addEventListener('mouseleave', () => submenu.style.display = 'none');
+          } else {
+            link.addEventListener('click', function(e) {
+              e.preventDefault();
+              submenu.style.display = submenu.style.display === 'block' ? 'none' : 'block';
+            });
+          }
+        });
+      </script>
     </nav>
   </header>
   <main>
