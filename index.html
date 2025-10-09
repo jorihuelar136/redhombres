@@ -64,7 +64,7 @@
         menuToggle.addEventListener('click', () => {
           menu.classList.toggle('menu-open');
         });
-        // Submenús: hover en desktop, click en móvil
+        // Submenús: hover en desktop, click en móvil (solo uno abierto)
         document.querySelectorAll('.menu-item').forEach(function(item) {
           const link = item.querySelector('a');
           const submenu = item.querySelector('.submenu');
@@ -75,6 +75,11 @@
           } else {
             link.addEventListener('click', function(e) {
               e.preventDefault();
+              // Cerrar todos los submenús
+              document.querySelectorAll('.submenu').forEach(function(other) {
+                if(other !== submenu) other.style.display = 'none';
+              });
+              // Abrir/cerrar el submenú actual
               submenu.style.display = submenu.style.display === 'block' ? 'none' : 'block';
             });
           }
