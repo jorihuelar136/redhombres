@@ -5,74 +5,122 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Web Red de Hombres IWP</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles2.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
   <header class="header">
-    <div class="navbar">
-      <div class="logo">
-        <a href="#inicio"><img src="assets/logo.png" alt="Logo Red de Hombres" style="height:80px;max-width:180px;width:auto;"></a>
-      </div>
-      <nav id='menu'>
-      <input type='checkbox' id='responsive-menu' onclick='updatemenu()'><label></label>
-      <ul>
-        <li><a class='dropdown-arrow'>Inicio</a>
-          <ul class='sub-menus'>
-            <li><a href='#inicio'>Misión</a></li>
-            <li><a href='#inicio'>Visión</a></li>
-            <li><a href='#inicio'>Quiénes Somos</a></li>
-          </ul>
-        </li>
-        <li><a class='dropdown-arrow'>Ministerios</a>
-          <ul class='sub-menus'>
-            <li><a href='#ministerios'>Niños</a></li>
-            <li><a href='#ministerios'>Jóvenes</a></li>
-            <li><a href='#ministerios'>Encuentros</a></li>
-            <li><a href='#ministerios'>Red de Hombres</a></li>
-          </ul>
-        </li>
-        <li><a class='dropdown-arrow'>Voluntariado</a>
-          <ul class='sub-menus'>
-            <li><a href='#voluntariado'>Servicio</a></li>
-            <li><a href='#voluntariado'>Equipos</a></li>
-          </ul>
-        </li>
+    <nav class="navbar">
 
-        <li><a class='dropdown-arrow'>Cursos</a>
-          <ul class='sub-menus'>
-            <li><a href='#cursos'>Liderazgo</a></li>
-            <li><a href='#cursos'>Familia</a></li>
-            <li><a href='#cursos'>Finanzas</a></li>
-            <li><a href='#cursos'>Salud Integral</a></li> 
+  <button class="menu-toggle" aria-label="Abrir menú">
+        <i class="fas fa-bars"></i>
+      </button>
+      <ul class="menu">
+        <li class="menu-item">
+          <a href="#inicio">Inicio</a>
+          <ul class="submenu">
+            <li><a href="#inicio">Misión</a></li>
+            <li><a href="#inicio">Visión</a></li>
+            <li><a href="#inicio">Quiénes Somos</a></li>
+          </ul>
+        </li>
+        <li class="menu-item">
+          <a href="#ministerios">Ministerios</a>
+          <ul class="submenu">
+            <li><a href="#inicio">Niños</a></li>
+            <li><a href="#inicio">Jóvenes</a></li>
+            <li><a href="#inicio">Encuentros</a></li>
+            <li><a href="#inicio">Red de Hombres</a></li>
+          </ul>
+        </li>
+        <li class="menu-item">
+          <a href="#voluntariado">Voluntariado</a>
+          <ul class="submenu">
+            <li><a href="#inicio">Servicio</a></li>
+            <li><a href="#inicio">Equipos</a></li>
+          </ul>
+        </li>
+        <li class="menu-item">
+          <a href="#cursos">Cursos</a>
+          <ul class="submenu">
+            <li><a href="#inicio">Liderazgo</a></li>
+            <li><a href="#inicio">Familia</a></li>
+            <li><a href="#inicio">Finanzas</a></li>
+            <li><a href="#inicio">Salud Integral</a></li>
           </ul>
         </li>
       </ul>
-       <script>
-          function updatemenu() {
-            if (document.getElementById('responsive-menu').checked == true) {
-              document.getElementById('menu').style.borderBottomRightRadius = '0';
-              document.getElementById('menu').style.borderBottomLeftRadius = '0';
-            } else {
-              document.getElementById('menu').style.borderRadius = '10px';
-            }
+      <script>
+        // Mostrar/ocultar menú en móvil solo con la clase menu-open
+        const menuToggle = document.querySelector('.menu-toggle');
+        const menu = document.querySelector('.menu');
+        window.addEventListener('resize', () => {
+          if(window.innerWidth > 900) menu.classList.remove('menu-open');
+        });
+        menuToggle.addEventListener('click', () => {
+          menu.classList.toggle('menu-open');
+          // Al abrir/cerrar el menú, cerrar todos los submenús
+          if(!menu.classList.contains('menu-open')) {
+            document.querySelectorAll('.submenu').forEach(function(sub) {
+              sub.style.display = 'none';
+            });
           }
-          // Mobile: close menu when submenu item is clicked
-          document.addEventListener('DOMContentLoaded', function() {
-            if (window.matchMedia('(max-width: 800px)').matches) {
-              var submenuLinks = document.querySelectorAll('#menu ul.sub-menus a');
-              submenuLinks.forEach(function(link) {
-                link.addEventListener('click', function() {
-                  document.getElementById('responsive-menu').checked = false;
-                  updatemenu();
+        });
+        // Submenús: hover en desktop, click en móvil (solo uno abierto)
+        function setupMenuEvents() {
+          document.querySelectorAll('.menu-item').forEach(function(item) {
+            const link = item.querySelector('a');
+            const submenu = item.querySelector('.submenu');
+            if(!submenu) return;
+            // Limpia listeners previos
+            item.onmouseenter = null;
+            item.onmouseleave = null;
+            link.onclick = null;
+            submenu.onmouseenter = null;
+            submenu.onmouseleave = null;
+            submenu.querySelectorAll('a').forEach(function(subLink) {
+              subLink.onclick = null;
+            });
+            if(window.innerWidth > 900) {
+              let hideTimeout;
+              item.addEventListener('mouseenter', () => {
+                clearTimeout(hideTimeout);
+                submenu.style.display = 'block';
+              });
+              item.addEventListener('mouseleave', () => {
+                hideTimeout = setTimeout(() => {
+                  submenu.style.display = 'none';
+                }, 150);
+              });
+              submenu.addEventListener('mouseenter', () => {
+                clearTimeout(hideTimeout);
+                submenu.style.display = 'block';
+              });
+              submenu.addEventListener('mouseleave', () => {
+                submenu.style.display = 'none';
+              });
+            } else {
+              link.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.submenu').forEach(function(other) {
+                  if(other !== submenu) other.style.display = 'none';
+                });
+                submenu.style.display = submenu.style.display === 'block' ? 'none' : 'block';
+              });
+              submenu.querySelectorAll('a').forEach(function(subLink) {
+                subLink.addEventListener('click', function() {
+                  submenu.style.display = 'none';
+                  menu.classList.remove('menu-open');
                 });
               });
             }
           });
-     </script>
+        }
+        window.addEventListener('resize', setupMenuEvents);
+        window.addEventListener('DOMContentLoaded', setupMenuEvents);
+      </script>
     </nav>
-   </div>
-
-    
   </header>
   <main>
     <section class="hero" id="inicio">
