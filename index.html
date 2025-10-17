@@ -85,10 +85,11 @@
       </div>
     </section>
     <!-- Login Modal -->
-    <div id="loginModal" class="modal" aria-hidden="true" style="display:none;">
-      <div class="modal-content">
-        <span class="modal-close" id="closeLogin" aria-label="Cerrar">&times;</span>
-        <h2>Iniciar Sesión</h2>
+    <div id="loginModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="loginTitle" aria-describedby="loginDesc" aria-hidden="true" style="display:none;">
+      <div class="modal-content" tabindex="-1">
+        <button class="modal-close" id="closeLogin" aria-label="Cerrar ventana de login" type="button">&times;</button>
+        <h2 id="loginTitle">Iniciar Sesión</h2>
+        <p id="loginDesc" class="visually-hidden">Formulario para ingresar con email y contraseña.</p>
         <form id="loginForm" class="auth-form">
           <div class="form-row">
             <label for="loginEmail">Email</label>
@@ -99,12 +100,12 @@
             <input type="password" id="loginPassword" name="password" required>
           </div>
           <div class="form-row">
-            <button type="submit" class="btn">Entrar</button>
+            <button type="submit" class="btn" id="loginSubmit" aria-live="polite">Entrar</button>
           </div>
           <div class="form-row small">
             <span>¿No tienes cuenta? <a href="#registro" id="goToRegister">Regístrate</a></span>
           </div>
-          <div id="loginMessage" class="form-message"></div>
+          <div id="loginMessage" class="form-message" aria-live="polite"></div>
         </form>
       </div>
     </div>
@@ -117,13 +118,13 @@
       </div>
     </section>
     <!-- Registro de Usuario (Overlay) -->
-    <div id="registroOverlay" class="overlay-modal" aria-hidden="true" role="dialog" aria-labelledby="registroTitle" style="display:none;">
-      <div class="overlay-content">
-        <button class="overlay-close" id="closeRegisterOverlay" aria-label="Cerrar registro">&times;</button>
+    <div id="registroOverlay" class="overlay-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="registroTitle" aria-describedby="registroDesc" style="display:none;">
+      <div class="overlay-content" tabindex="-1">
+        <button class="overlay-close" id="closeRegisterOverlay" aria-label="Cerrar formulario de registro" type="button">&times;</button>
         <section class="section" id="registro">
         <div class="section-content" style="width:100%">
-        <h2>Registro de Usuario</h2>
-        <p>Regístrate para acceder a recursos personalizados, cursos y nuestro agente IA bíblico.</p>
+        <h2 id="registroTitle">Registro de Usuario</h2>
+        <p id="registroDesc">Regístrate para acceder a recursos personalizados, cursos y nuestro agente IA bíblico.</p>
         <form id="registerForm" class="auth-form">
           <div class="form-row">
             <label for="regName">Nombre completo</label>
@@ -142,12 +143,12 @@
             <input type="password" id="regPassword2" name="password2" minlength="6" required>
           </div>
           <div class="form-row">
-            <button type="submit" class="btn">Registrarme</button>
+            <button type="submit" class="btn" id="registerSubmit" aria-live="polite">Registrarme</button>
           </div>
           <div class="form-row small">
             <span>¿Ya tienes cuenta? <a href="#" id="openLoginFromRegister">Inicia sesión</a></span>
           </div>
-          <div id="registerMessage" class="form-message"></div>
+          <div id="registerMessage" class="form-message" aria-live="polite"></div>
         </form>
         </div>
         </section>

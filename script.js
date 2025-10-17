@@ -51,11 +51,15 @@
     if(!loginModal) return; 
     loginModal.style.display = 'flex';
     loginModal.setAttribute('aria-hidden','false');
+    setupFocusTrap(loginModal);
+    const firstField = loginModal.querySelector('#loginEmail');
+    firstField && firstField.focus();
   }
   function closeModal(){
     if(!loginModal) return; 
     loginModal.style.display = 'none';
     loginModal.setAttribute('aria-hidden','true');
+    removeFocusTrap(loginModal);
   }
   if(openLoginBtn){
     openLoginBtn.addEventListener('click', function(e){ e.preventDefault(); openModal(); });
@@ -82,14 +86,22 @@
   if(registerForm){
     registerForm.addEventListener('submit', async function(e){
       e.preventDefault();
+      if(inFlight.register) return; // prevent double submit
       const name = registerForm.name.value.trim();
       const email = registerForm.email.value.trim();
       const password = registerForm.password.value;
       const password2 = registerForm.password2.value;
+      const emailValid = emailRegex.test(email);
+      const pwdValid = validatePassword(password);
+      if(!emailValid){ showFieldError('regEmail','Email inválido'); return; }
+      if(!pwdValid){ showFieldError('regPassword','Contraseña débil (mín 6, 1 letra, 1 número)'); return; }
       if(password !== password2){
-        showMessage(registerMessage, 'Las contraseñas no coinciden', 'error');
+        showFieldError('regPassword2','Las contraseñas no coinciden');
         return;
       }
+      clearFieldErrors(['regEmail','regPassword','regPassword2']);
+      inFlight.register = true;
+      toggleLoading(registerSubmit,true);
       try {
         const res = await fetch('http://localhost:4000/api/auth/register', {
           method: 'POST',
@@ -100,12 +112,16 @@
         if(res.ok){
           showMessage(registerMessage, 'Registro exitoso. Ahora inicia sesión.', 'success');
           registerForm.reset();
+          // Auto abrir login para continuar flujo
+          setTimeout(()=>{ closeRegistroOverlay(); openModal(); }, 800);
         } else {
           showMessage(registerMessage, data.message || 'Error al registrar', 'error');
         }
       } catch(err){
         showMessage(registerMessage, 'Error de conexión', 'error');
       }
+      inFlight.register = false;
+      toggleLoading(registerSubmit,false);
     });
   }
 
@@ -113,8 +129,13 @@
   if(loginForm){
     loginForm.addEventListener('submit', async function(e){
       e.preventDefault();
+      if(inFlight.login) return;
       const email = loginForm.email.value.trim();
       const password = loginForm.password.value;
+      if(!emailRegex.test(email)){ showFieldError('loginEmail','Email inválido'); return; }
+      clearFieldErrors(['loginEmail']);
+      inFlight.login = true;
+      toggleLoading(loginSubmit,true);
       try {
         const res = await fetch('http://localhost:4000/api/auth/login', {
           method: 'POST',
@@ -134,6 +155,8 @@
       } catch(err){
         showMessage(loginMessage, 'Error de conexión', 'error');
       }
+      inFlight.login = false;
+      toggleLoading(loginSubmit,false);
     });
   }
 
@@ -155,3 +178,68 @@
     }
   }
 })();
+
+// Validation & accessibility helpers
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function validatePassword(p){
+  if(!p || p.length < 6) return false;
+  const hasLetter = /[A-Za-z]/.test(p);
+  const hasNumber = /\d/.test(p);
+  return hasLetter && hasNumber;
+}
+function showFieldError(id,msg){
+  const input = document.getElementById(id);
+  if(!input) return;
+  let err = input.nextElementSibling;
+  if(!err || !err.classList.contains('field-error')){
+    err = document.createElement('div');
+    err.className='field-error';
+    input.after(err);
+  }
+  err.textContent = msg;
+  input.setAttribute('aria-invalid','true');
+  input.classList.add('invalid');
+}
+function clearFieldErrors(ids){
+  ids.forEach(id=>{
+    const input = document.getElementById(id);
+    if(!input) return;
+    input.removeAttribute('aria-invalid');
+    input.classList.remove('invalid');
+    const err = input.nextElementSibling;
+    if(err && err.classList.contains('field-error')) err.remove();
+  });
+}
+const inFlight = { register:false, login:false };
+function toggleLoading(btn,loading){
+  if(!btn) return;
+  if(loading){
+    btn.disabled = true; btn.dataset.originalText = btn.textContent; btn.textContent='Procesando...';
+  } else {
+    btn.disabled = false; if(btn.dataset.originalText) btn.textContent=btn.dataset.originalText;
+  }
+}
+
+// Focus trap implementation
+const focusTrapState = new WeakMap();
+function setupFocusTrap(container){
+  const selectors = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+  function handler(e){
+    if(e.key !== 'Tab') return;
+    const focusables = Array.from(container.querySelectorAll(selectors)).filter(el=>el.offsetParent!==null);
+    if(focusables.length===0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length-1];
+    if(e.shiftKey){
+      if(document.activeElement === first){ e.preventDefault(); last.focus(); }
+    } else {
+      if(document.activeElement === last){ e.preventDefault(); first.focus(); }
+    }
+  }
+  document.addEventListener('keydown', handler);
+  focusTrapState.set(container, handler);
+}
+function removeFocusTrap(container){
+  const handler = focusTrapState.get(container);
+  if(handler){ document.removeEventListener('keydown', handler); focusTrapState.delete(container); }
+}

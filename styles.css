@@ -399,6 +399,20 @@ body {
 .btn:hover {
   background: #023e8a;
 }
+/* Accessibility utility */
+.visually-hidden { position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+
+/* Form messages */
+.form-message { margin-top:0.5rem; font-size:0.85rem; font-weight:600; }
+.form-message.error { color:#d00000; }
+.form-message.success { color:#2d6a4f; }
+.field-error { margin-top:0.35rem; font-size:0.75rem; color:#d00000; font-weight:600; }
+input.invalid { outline:2px solid #d00000; border-color:#d00000; }
+input:focus { outline:2px solid #00b4d8; }
+button[disabled] { opacity:0.6; cursor:not-allowed; }
+
+/* Overlay & modal adjustments for focus */
+.modal-content:focus, .overlay-content:focus { outline:2px solid #00b4d8; }
 .section {
   max-width: 1200px;
   margin: 3rem auto;
