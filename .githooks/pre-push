@@ -1,56 +1,86 @@
 #!/usr/bin/env bash
-# Pre-push hook to scan for obvious secrets before allowing push.
-# Blocks push if patterns are detected in staged commits diff.
-# Customize patterns as needed.
+# Refined pre-push hook: scans new commits for HIGH-RISK secret values (not just keywords).
+# Avoids false positives by ignoring known safe files & matching token/value shapes.
 
 set -euo pipefail
 
-# Collect refs being pushed from stdin (local_ref local_sha remote_ref remote_sha)
-# We will scan the range of new commits for each ref.
-
-# Patterns (basic). Add more as needed.
-PATTERNS=(
-  'AIRTABLE_API_KEY='
-  'JWT_SECRET='
-  'AWS_ACCESS_KEY_ID='
-  'AWS_SECRET_ACCESS_KEY='
-  'PRIVATE KEY-----'
-  'BEGIN RSA PRIVATE KEY'
-  'BEGIN OPENSSH PRIVATE KEY'
-)
-
 color_red='\033[31m'
 color_green='\033[32m'
-color_yellow='\033[33m'
 color_reset='\033[0m'
 
+# Regex patterns for actual secret values (NOT mere variable names):
+# - Airtable PAT usually starts with "pat" and is >= 24 chars.
+# - JWT secrets (here heuristic: long alphanumeric >=32).
+# - AWS keys exact shapes.
+# - Private key PEM headers.
+PATTERNS=(
+  'AIRTABLE_API_KEY=pat[a-zA-Z0-9]{20,}'
+  'JWT_SECRET=[A-Za-z0-9]{32,}'
+  'AWS_ACCESS_KEY_ID=AKIA[0-9A-Z]{16}'
+  'AWS_SECRET_ACCESS_KEY=[0-9A-Za-z/+=]{40}'
+  '-----BEGIN (RSA|OPENSSH|EC) PRIVATE KEY-----'
+  'DATABASE_URL=postgres://'
+)
+
+# Allowlist / skip prefixes (paths we ignore entirely)
+SKIP_PREFIXES=(
+  'node_modules/'
+  'backend/node_modules/'
+  '.githooks/'        # hook code itself
+  'scripts/'          # scanner patterns text
+)
+
+# Allowlisted exact files
+SKIP_FILES=(
+  'README.md'
+  'backend/.env.example'
+)
+
+is_skipped() {
+  local f="$1"
+  for s in "${SKIP_FILES[@]}"; do [[ "$f" == "$s" ]] && return 0; done
+  for p in "${SKIP_PREFIXES[@]}"; do [[ "$f" == $p* ]] && return 0; done
+  return 1
+}
+
 error_found=0
+declare -A offenders
 
 while read -r local_ref local_sha remote_ref remote_sha; do
-  # If remote ref is blank (new branch) compare against empty tree.
   base_ref="$remote_sha"
   if [ "$remote_sha" = '0000000000000000000000000000000000000000' ]; then
-    base_ref="$(git hash-object -t tree /dev/null)" # empty tree
+    base_ref="$(git hash-object -t tree /dev/null)"
   fi
-  # Get list of new commits
   commits=$(git rev-list ${base_ref}..${local_sha}) || true
   for c in $commits; do
-    # Show name-status and full diff text in one stream for scanning
-    diff_text=$(git show --pretty=format: --name-only "$c"; git show "$c")
-    for pattern in "${PATTERNS[@]}"; do
-      if echo "$diff_text" | grep -E "$pattern" >/dev/null 2>&1; then
-        echo -e "${color_red}SECURITY BLOCK: Pattern '$pattern' found in commit $c${color_reset}" >&2
-        error_found=1
-      fi
+    # List changed files for commit c
+    mapfile -t files < <(git diff-tree --no-commit-id --name-only -r "$c")
+    for f in "${files[@]}"; do
+      is_skipped "$f" && continue
+      content=$(git show "$c:$f" 2>/dev/null || true)
+      [ -z "$content" ] && continue
+      for pattern in "${PATTERNS[@]}"; do
+        if echo "$content" | grep -E "$pattern" >/dev/null 2>&1; then
+          offenders["$c"]+="$f :: $pattern\n"
+          error_found=1
+        fi
+      done
     done
   done
 done
 
 if [ $error_found -eq 1 ]; then
+  echo -e "${color_red}SECURITY BLOCK: potential secrets detected.${color_reset}" >&2
+  for c in "${!offenders[@]}"; do
+    echo "Commit $c:" >&2
+    echo -e "${offenders[$c]}" >&2
+  done
   cat <<'EOF' >&2
-One or more potential secrets were detected in the commits you are pushing.
-Resolve them (remove from history / rotate keys) before pushing again.
-To override temporarily (not recommended): git push --no-verify
+Remediation:
+  1. Remove or rotate the exposed secret.
+  2. If already committed, rewrite history (git filter-repo / filter-branch) and force push.
+  3. Confirm replacement using: grep -R 'oldValue' .
+Override (NOT recommended): git push --no-verify
 EOF
   exit 1
 fi
