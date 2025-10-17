@@ -105,3 +105,86 @@ PORT=4000
 Este código es un MVP y no debe usarse en producción sin hardening (DB segura, no PasswordHash en Airtable, HTTPS, rate limiting, rotación de tokens, logs centralizados).
 
 # redhombres
+
+## Control de Secretos y Hook Pre-Push
+Para evitar subir llaves o tokens sensibles al repositorio se han añadido:
+1. Archivo `.gitignore` que excluye `.env` y llaves.
+2. Hook `pre-push` en `.githooks/pre-push` configurado vía:
+   git config core.hooksPath .githooks
+3. Scanner reutilizable: `scripts/secret-scan.js` (ejecución manual o CI).
+
+### Instalación Rápida del Hook
+Si clonas el repo y no ves el hook activo:
+```
+git config core.hooksPath .githooks
+```
+
+### Uso Manual del Scanner
+```
+node scripts/secret-scan.js
+```
+Salida exitosa: `Secret scan passed.` Si encuentra patrones: código de salida 1 y lista de archivos/patrones.
+
+### Patrones Detectados (por defecto)
+- Airtable PAT (`AIRTABLE_API_KEY=pat...`)
+- JWT secret largo (`JWT_SECRET=` >=32 chars)
+- AWS keys (`AKIA...` y secret access key de 40 chars)
+- Claves privadas PEM (`-----BEGIN RSA/OPENSSH/EC PRIVATE KEY-----`)
+- Cadena de conexión Postgres (`DATABASE_URL=postgres://`)
+
+### Ampliar o Ajustar Patrones
+Editar hook `.githooks/pre-push` o script `scripts/secret-scan.js`.
+Agregar nueva regex (ej Stripe): `/sk_live_[0-9A-Za-z]{24,}/`.
+
+### Manejo de Falsos Positivos
+1. Confirmar que NO es un secreto real.
+2. Añadir a `SKIP_FILES` o `SKIP_PREFIXES`.
+3. Evitar exclusiones masivas.
+
+### Bypass Temporal (no recomendado)
+```
+git push --no-verify
+```
+Usar sólo en emergencias y luego limpiar historia si hubo secreto.
+
+### Rotación de Secretos
+Si un token se expone:
+1. Revocar en el proveedor.
+2. Generar uno nuevo.
+3. Actualizar `.env` local (no commit).
+4. Reescribir historia si ya estaba publicado y forzar push.
+
+### Integración en CI (GitHub Actions ejemplo)
+Archivo `.github/workflows/secret-scan.yml`:
+```yaml
+name: Secret Scan
+on: [push, pull_request]
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run secret scan
+        run: node scripts/secret-scan.js
+```
+
+### Comandos Útiles
+Buscar valor antiguo:
+```
+grep -R "patXXXXXXXX" . || echo "No encontrado"
+```
+Generar JWT_SECRET Linux/macOS:
+```
+openssl rand -hex 32
+```
+PowerShell:
+```
+[guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N')
+```
+
+---
+Mantener este apartado actualizado al añadir nuevos proveedores o cambiar el proceso.
